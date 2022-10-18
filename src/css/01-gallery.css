@@ -37,7 +37,7 @@
   align-items: center;
   width: 4em;
   border: none;
-  background-color: rgb(148, 147, 147);
+  background-color: rgb(177, 174, 174);
 
   border-radius: 0 4px 4px 0;
   cursor: pointer;
@@ -83,61 +83,13 @@
   padding-top: 5px;
   padding-bottom: 5px;
   color: white;
-  /* 
-  font-size: 15px; */
+
   text-align: center;
   line-height: 0.9;
 }
 .info-item:not(:last-child) {
   margin-left: 20px;
 }
-/* .wrap {
-  position: relative;
-} */
-/* .info-item__likes::before {
-  content: '';
-  width: 16px;
-  height: 16px;
-  position: absolute;
-  left: 0;
-  background-image: url(../images/heart.svg);
-  background-size: cover;
-}
-.info-item__comment::before {
-  content: '';
-  width: 16px;
-  height: 16px;
-  position: absolute;
-
-  left: 0;
-  background-image: url(../images/pencil.svg);
-  background-size: cover;
-}
-
-.info-item__views::before {
-  content: '';
-  width: 16px;
-  height: 16px;
-  position: absolute;
-
-  left: 0;
-  background-image: url(../images/eye.svg);
-  background-size: cover;
-}
-
-.info-item__downloads::before {
-  content: '';
-  width: 16px;
-  height: 16px;
-  position: absolute;
-
-  left: 0;
-  background-image: url(../images/download.svg);
-  background-size: cover;
-}
-.icon {
-  fill: rgb(172, 10, 10);
-} */
 
 .gallery__image {
   height: 100%;
@@ -160,12 +112,4 @@
   color: black;
   min-width: 100px;
   height: 20px;
-  padding: 0;
-  border: none;
-  background-image: url(../images/spinner3.svg);
-  background-size: contain;
-  background-repeat: no-repeat;
 }
-/* .load-more-icon {
- 
-} */
