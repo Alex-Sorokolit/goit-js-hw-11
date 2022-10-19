@@ -1,113 +1,121 @@
-import SimpleLightbox from "simplelightbox/dist/simple-lightbox.esm";
+import { fetchImages } from './js/axios-fetch';
+
+// Iмпорт бібліотеки SimpleLightbox
+// import SimpleLightbox from "simplelightbox/dist/simple-lightbox.esm";
 import SimpleLightbox from "simplelightbox";
 import "simplelightbox/dist/simple-lightbox.css";
-
-// Додати бібліотеку axios
-
-// const instance = axios.create({
-//   baseURL: 'https://some-domain.com/api/',
-//   timeout: 1000,
-//   headers: {'X-Custom-Header': 'foobar'}
-// });
-
-// async function getUser() {
-//   try {
-//     const response = await axios.get('/user?ID=12345');
-//     console.log(response);
-//   } catch (error) {
-//     console.error(error);
-//   }
-// }
-
+// Імпорт бібліотеки сповіщень
 import { Notify } from "notiflix";
-// Notify.success('Все добре');
-// Notify.failure('Все погано');
-// Notify.info('Інфо');
-
-//Імпортуємо клас 
-import GalleryApiService from './js/gallery-service'
-
-//Робимо екземпляр класу щоб отримати об'єкт із методами
-const galleryApiService = new GalleryApiService();
+import { renderGallery } from './render-images';
 
 const refs = {
- searchQuery: document.querySelector('[name="searchQuery"]'),
- searchForm: document.querySelector('.search-form'),
- galleryList: document.querySelector('.js-gallery'),
- loadMoreButton:document.querySelector('.load-more'),
+  searchQuery: document.querySelector('[name="searchQuery"]'),
+  searchForm: document.querySelector('.search-form'),
+  galleryList: document.querySelector('.js-gallery'),
+  loadMoreButton: document.querySelector('.load-more'),
+  footer: document.querySelector('.footer'),
 }
-// console.log(galleryApiService);
 
+let query = '';
+let page = 1;
+const perPage = 40;
 
 refs.searchForm.addEventListener('submit', onSearch)
 refs.loadMoreButton.addEventListener('click', loadMore)
 
+
+
+// _____________________________________________________________
 function onSearch(event) {
- event.preventDefault();
+  console.log(event);
+  // Видаляємо дію по замовчуванні
+  event.preventDefault();
 
+  // Встановлюємо початкову порцію даних
+  page = 1;
 
- // Забираємо дані з input і присвоюємо в об'єкт 
- galleryApiService.query = event.currentTarget.elements.searchQuery.value;
- console.log(event.currentTarget.elements.searchQuery.value);
- galleryApiService.resetPage();
- // надсилаємо запит
- galleryApiService.fetchImages().then(images => {
-  renderImages(images);
-  // Запуск бібліотеки
-let lightbox = new SimpleLightbox('.gallery a', {
- captionsData: 'alt',
- captionDelay: 250,
-  captionPosition: 'bottom',
-//  overlay: false,
-}).refresh();
- })
-
-
+  // Забираємо дані з input і присвоюємо в об'єкт 
+  query = event.currentTarget.elements.searchQuery.value;
+  console.log(event.currentTarget.elements.searchQuery.value);
+  
+  // Видаляємо розмітку з сторінки
+  refs.galleryList.innerHTML = '';
+  
  
-};
+  // Якщо користувач нічого не ввів показуємо повідомлення
+  if (query === '') {
+    Notify.failure('Input your search query.')
+    refs.footer.classList.add('is-hidden');
+    return;
+  };
+  //
 
+  // надсилаємо запит -----------------------------------------------
+  fetchImages(query, page, perPage)
+    .then(data => {
+      
+      console.log('totalHits', data.data.totalHits);
 
+      if (data.data.totalHits === 0) {
+        Notify.failure('Sorry, there are no images matching your search query. Please try again.')
+        refs.footer.classList.add('is-hidden');
+        return
+      } else {
 
-
-
-function loadMore() {
-  galleryApiService.fetchImages();
+        renderGallery(data);
+        const totalfindedImages = data.data.totalHits;
+        Notify.success(`Hooray! We found ${totalfindedImages} images.`)
+        if (data.data.totalHits < perPage) {
+          refs.footer.classList.add('is-hidden');
+          console.log('Мало результатів');
+        } else {
+          console.log('спрацював else');
+          // Запуск бібліотеки
+          let lightbox = new SimpleLightbox('.gallery a', {
+            captionsData: 'alt',
+            captionDelay: 250,
+            captionPosition: 'bottom',
+            //  overlay: false,
+          }).refresh();
+          // Знімаємо клас на кнопці loadMore (показуємо кнопку)
+          refs.footer.classList.remove('is-hidden');
+        }
+      }
+    }).catch(error => console.log(error))
+    .finally(() => {
+      refs.searchForm.reset();
+    });
 }
 
-function createMurkup ({largeImageURL, webformatURL,tags,likes,views,comments,downloads}) {
- // console.log(webformatURL);
- return `<div class="gallery-item">
-<a class="gallery__link" href="${largeImageURL}">
-  <img class="gallery__image"
-  src="${webformatURL}" 
-  alt="${tags}" loading="lazy" />
+  
+  // loadMore --------------------------------------------------
+  function loadMore() {
+    page += 1;
+    console.log(page);
+    console.log('load more');
+    fetchImages(query, page, perPage)
+    .then(data => {
+      console.log(data);
 
-   </a>
-    <div class="info">
-    <p class="info-item info-item__likes"><span class="material-symbols-outlined">
-    thumb_up</span><br>${likes}</p>
 
-    <p class="info-item info-item__views"><span class="material-symbols-outlined">
-    visibility
-    </span><br>${views}</p>
+      renderGallery(data);
+      // Запуск бібліотеки
+      let lightbox = new SimpleLightbox('.gallery a', {
+        captionsData: 'alt',
+        captionDelay: 250,
+        captionPosition: 'bottom',
+        //  overlay: false,
+      }).refresh();
 
-    <p class="info-item info-item__comment"><span class="material-symbols-outlined">
-    comment
-    </span><br>${comments}</p>
+        const totalPages = Math.ceil(data.data.totalHits / perPage);
+        if (page > totalPages ) {
+        refs.footer.classList.add('is-hidden');
+        Notify.failure("We're sorry, but you've reached the end of search results.")
+      }
 
-    <p class="info-item info-item__downloads"><span class="material-symbols-outlined">
-    download  </span><br>${downloads}</p>
-  </div>
-</div>`
 
+    }).catch(error => console.log(error))
+    .finally(() => {
+      refs.searchForm.reset();
+    });
 }
-
-function renderImages(data) {
- const markup = data.map(createMurkup).join('');
- console.log(markup);
- // refs.galleryList.innerHTML = markup;
-refs.galleryList.insertAdjacentHTML('beforeend', markup);
-
-}
-
-
