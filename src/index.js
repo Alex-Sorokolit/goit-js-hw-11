@@ -2,7 +2,7 @@ import { fetchImages } from './js/axios-fetch';
 // Iмпорт бібліотеки SimpleLightbox
 // import SimpleLightbox from "simplelightbox/dist/simple-lightbox.esm";
 import SimpleLightbox from "simplelightbox";
-// import "simplelightbox/dist/simple-lightbox.css";
+import "simplelightbox/dist/simple-lightbox.css";
 import "simplelightbox/dist/simple-lightbox.min.css";
 // Імпорт бібліотеки сповіщень
 import { Notify } from "notiflix";
