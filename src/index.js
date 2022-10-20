@@ -4,9 +4,10 @@ import { fetchImages } from './js/axios-fetch';
 // import SimpleLightbox from "simplelightbox/dist/simple-lightbox.esm";
 import SimpleLightbox from "simplelightbox";
 import "simplelightbox/dist/simple-lightbox.css";
+// import "simplelightbox/dist/simple-lightbox.min.css";
 // Імпорт бібліотеки сповіщень
 import { Notify } from "notiflix";
-import { renderGallery } from './render-images';
+import { renderGallery } from './js/render-images';
 
 const refs = {
   searchQuery: document.querySelector('[name="searchQuery"]'),
@@ -15,6 +16,15 @@ const refs = {
   loadMoreButton: document.querySelector('.load-more'),
   footer: document.querySelector('.footer'),
 }
+
+// Simplelightbox 
+          // Запуск бібліотеки
+let lightbox = new SimpleLightbox('.gallery a', {
+  captionsData: 'alt',
+  captionDelay: 250,
+  captionPosition: 'bottom',
+});
+
 
 let query = '';
 let page = 1;
@@ -64,22 +74,20 @@ function onSearch(event) {
 
         renderGallery(data);
         const totalfindedImages = data.data.totalHits;
-        Notify.success(`Hooray! We found ${totalfindedImages} images.`)
+        Notify.success(`Hooray! We found ${totalfindedImages} images.`, {
+          timeout:  1500,
+          clickToClose: true,
+        })
         if (data.data.totalHits < perPage) {
           refs.footer.classList.add('is-hidden');
           console.log('Мало результатів');
         } else {
           console.log('спрацював else');
-          // Запуск бібліотеки
-          let lightbox = new SimpleLightbox('.gallery a', {
-            captionsData: 'alt',
-            captionDelay: 250,
-            captionPosition: 'bottom',
-            //  overlay: false,
-          }).refresh();
+
           // Знімаємо клас на кнопці loadMore (показуємо кнопку)
           refs.footer.classList.remove('is-hidden');
         }
+        lightbox.refresh();
       }
     }).catch(error => console.log(error))
     .finally(() => {
@@ -100,12 +108,7 @@ function onSearch(event) {
 
       renderGallery(data);
       // Запуск бібліотеки
-      let lightbox = new SimpleLightbox('.gallery a', {
-        captionsData: 'alt',
-        captionDelay: 250,
-        captionPosition: 'bottom',
-        //  overlay: false,
-      }).refresh();
+lightbox.refresh();
 
         const totalPages = Math.ceil(data.data.totalHits / perPage);
         if (page > totalPages ) {
