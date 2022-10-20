@@ -1,6 +1,7 @@
 export { renderGallery };
 const galleryList = document.querySelector('.js-gallery')
 
+import { infinityScrol } from '../index';
 function createMurkup({ largeImageURL, webformatURL, tags, likes, views, comments, downloads }) {
  // console.log(webformatURL);
  return `<div class="gallery-item">
@@ -35,5 +36,6 @@ function renderGallery(data){
   // console.log(data.data.hits);
      const markup = data.data.hits.map(createMurkup).join('');
    // console.log(markup);
-   galleryList.insertAdjacentHTML('beforeend', markup);
+  galleryList.insertAdjacentHTML('beforeend', markup);
+
 }
